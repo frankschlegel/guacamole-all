@@ -1,0 +1,12 @@
+[submodule "libguac"]
+	path = libguac
+	url = git://github.com/cmujedi/libguac.git
+[submodule "guacd"]
+	path = guacd
+	url = git://github.com/cmujedi/guacd.git
+[submodule "libguac-client-vnc"]
+	path = libguac-client-vnc
+	url = git://github.com/cmujedi/libguac-client-vnc.git
+[submodule "libguac-client-rdp"]
+	path = libguac-client-rdp
+	url = git://github.com/cmujedi/libguac-client-rdp.git
