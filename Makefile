@@ -14,6 +14,8 @@ ifeq ($(UNAME),Darwin)
 endif
 
 
+default: install
+
 build: build_guacd-all
 install: install_guacd-all
 clean: clean_guacd-all
@@ -33,10 +35,14 @@ LIBGUAC_CLIENT_VNC_DIR := $(TOP)/libguac-client-vnc
 BUILD_LIBGUAC_CLIENT_VNC := $(LIBGUAC_CLIENT_VNC_DIR)/libguac-client-vnc.la
 INSTALL_LIBGUAC_CLIENT_VNC := $(LIB_DIR)/libguac-client-vnc.$(SO)
 
+LIBGUAC_CLIENT_RDP_DIR := $(TOP)/libguac-client-rdp
+BUILD_LIBGUAC_CLIENT_RDP := $(LIBGUAC_CLIENT_RDP_DIR)/libguac-client-rdp.la
+INSTALL_LIBGUAC_CLIENT_RDP := $(LIB_DIR)/libguac-client-rdp.$(SO)
 
-build_guacd-all: $(BUILD_GUACD) $(BUILD_LIBGUAC_CLIENT_VNC) build_libguac-client-rdp
 
-$(BUILD_GUACD): $(BUILD_LIBGUAC) $(INSTALL_LIBGUAC)
+build_guacd-all: $(BUILD_GUACD) $(BUILD_LIBGUAC_CLIENT_VNC) $(BUILD_LIBGUAC_CLIENT_RDP)
+
+$(BUILD_GUACD): $(INSTALL_LIBGUAC)
 	cd $(GUACD_DIR) && \
 		aclocal && \
 		autoreconf -i && \
@@ -44,7 +50,7 @@ $(BUILD_GUACD): $(BUILD_LIBGUAC) $(INSTALL_LIBGUAC)
 			$(GUACD_DIR)/configure --prefix=$(INSTALL_DIR) && \
 		make
 
-$(BUILD_LIBGUAC_CLIENT_VNC): $(BUILD_LIBGUAC) $(INSTALL_LIBGUAC)
+$(BUILD_LIBGUAC_CLIENT_VNC): $(INSTALL_LIBGUAC)
 	cd $(LIBGUAC_CLIENT_VNC_DIR) && \
 		aclocal && \
 		autoreconf -i && \
@@ -52,7 +58,13 @@ $(BUILD_LIBGUAC_CLIENT_VNC): $(BUILD_LIBGUAC) $(INSTALL_LIBGUAC)
 			$(LIBGUAC_CLIENT_VNC_DIR)/configure --prefix=$(INSTALL_DIR) && \
 		make
 
-build_libguac-client-rdp: $(BUILD_LIBGUAC)
+$(BUILD_LIBGUAC_CLIENT_RDP): $(INSTALL_LIBGUAC)
+	cd $(LIBGUAC_CLIENT_RDP_DIR) && \
+		aclocal && \
+		autoreconf -i && \
+		CFLAGS='$(CFLAGS) -Wno-error' LDFLAGS=$(LDFLAGS) \
+			$(LIBGUAC_CLIENT_RDP_DIR)/configure --prefix=$(INSTALL_DIR) && \
+		make
 
 $(BUILD_LIBGUAC):
 	cd $(LIBGUAC_DIR) && \
@@ -75,9 +87,10 @@ clean_libguac-client-vnc:
 	-cd $(LIBGUAC_CLIENT_VNC_DIR) && make clean
 
 clean_libguac-client-rdp:
+	-cd $(LIBGUAC_CLIENT_RDP_DIR) && make clean
 
 
-install_guacd-all: $(INSTALL_GUACD) $(INSTALL_LIBGUAC_CLIENT_VNC) install_libguac-client-rdp
+install_guacd-all: $(INSTALL_GUACD) $(INSTALL_LIBGUAC_CLIENT_VNC) $(INSTALL_LIBGUAC_CLIENT_RDP)
 
 $(INSTALL_GUACD): $(BUILD_GUACD) $(INSTALL_LIBGUAC)
 	cd $(GUACD_DIR) && make install
@@ -85,7 +98,8 @@ $(INSTALL_GUACD): $(BUILD_GUACD) $(INSTALL_LIBGUAC)
 $(INSTALL_LIBGUAC_CLIENT_VNC): $(BUILD_LIBGUAC_CLIENT_VNC) $(INSTALL_LIBGUAC)
 	cd $(LIBGUAC_CLIENT_VNC_DIR) && make install
 
-install_libguac-client-rdp: $(INSTALL_LIBGUAC)
+$(INSTALL_LIBGUAC_CLIENT_RDP): $(BUILD_LIBGUAC_CLIENT_RDP) $(INSTALL_LIBGUAC)
+	cd $(LIBGUAC_CLIENT_RDP_DIR) && make install
 
 $(INSTALL_LIBGUAC): $(BUILD_LIBGUAC)
 	cd $(LIBGUAC_DIR) && make install
