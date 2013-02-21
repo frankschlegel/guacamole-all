@@ -39,8 +39,16 @@ LIBGUAC_CLIENT_RDP_DIR := $(TOP)/libguac-client-rdp
 BUILD_LIBGUAC_CLIENT_RDP := $(LIBGUAC_CLIENT_RDP_DIR)/libguac-client-rdp.la
 INSTALL_LIBGUAC_CLIENT_RDP := $(LIB_DIR)/libguac-client-rdp.$(SO)
 
+GUACAMOLE_DIR := $(TOP)/guacamole
+# get the guacamole version
+# run command mute the first time to make sure that the maven help plugin is installed
+GUACAMOLE_VERSION := $(shell cd $(GUACAMOLE_DIR) && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B -q && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B | grep -e "^\d" | head -n1)
+BUILD_GUACAMOLE := $(GUACAMOLE_DIR)/target/guacamole-$(GUACAMOLE_VERSION).war
+INSTALL_GUACAMOLE := $(INSTALL_DIR)/guacamole-$(GUACAMOLE_VERSION).war
+#TODO: install target with version number?
+# to get version: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B | grep -e "^\d" | head -n1
 
-build_guacd-all: $(BUILD_GUACD) $(BUILD_LIBGUAC_CLIENT_VNC) $(BUILD_LIBGUAC_CLIENT_RDP)
+build_guacd-all: $(BUILD_GUACD) $(BUILD_LIBGUAC_CLIENT_VNC) $(BUILD_LIBGUAC_CLIENT_RDP) $(BUILD_LIBGUACAMOLE)
 
 $(BUILD_GUACD): $(INSTALL_LIBGUAC)
 	cd $(GUACD_DIR) && \
@@ -74,8 +82,11 @@ $(BUILD_LIBGUAC):
 			$(LIBGUAC_DIR)/configure --prefix=$(INSTALL_DIR) && \
 		make
 
+$(BUILD_GUACAMOLE):
+	cd $(GUACAMOLE_DIR) && \
+		mvn package
 
-clean_guacd-all: clean_guacd clean_libguac clean_libguac-client-vnc clean_libguac-client-rdp
+clean_guacd-all: clean_guacd clean_libguac clean_libguac-client-vnc clean_libguac-client-rdp clean_guacamole
 
 clean_guacd:
 	-cd $(GUACD_DIR) && make clean
@@ -89,8 +100,11 @@ clean_libguac-client-vnc:
 clean_libguac-client-rdp:
 	-cd $(LIBGUAC_CLIENT_RDP_DIR) && make clean
 
+clean_guacamole:
+	-cd $(GUACAMOLE_DIR) && mvn clean
 
-install_guacd-all: $(INSTALL_GUACD) $(INSTALL_LIBGUAC_CLIENT_VNC) $(INSTALL_LIBGUAC_CLIENT_RDP)
+
+install_guacd-all: $(INSTALL_GUACD) $(INSTALL_LIBGUAC_CLIENT_VNC) $(INSTALL_LIBGUAC_CLIENT_RDP) $(INSTALL_GUACAMOLE)
 
 $(INSTALL_GUACD): $(BUILD_GUACD) $(INSTALL_LIBGUAC)
 	cd $(GUACD_DIR) && make install
@@ -103,6 +117,9 @@ $(INSTALL_LIBGUAC_CLIENT_RDP): $(BUILD_LIBGUAC_CLIENT_RDP) $(INSTALL_LIBGUAC)
 
 $(INSTALL_LIBGUAC): $(BUILD_LIBGUAC)
 	cd $(LIBGUAC_DIR) && make install
+
+$(INSTALL_GUACAMOLE): $(BUILD_GUACAMOLE)
+	cp $(BUILD_GUACAMOLE) $(INSTALL_DIR)
 
 
 .PHONY: clean* uninstall
