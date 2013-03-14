@@ -42,7 +42,7 @@ INSTALL_LIBGUAC_CLIENT_RDP := $(LIB_DIR)/libguac-client-rdp.$(SO)
 GUACAMOLE_DIR := $(TOP)/guacamole
 # get the guacamole version
 # run command mute the first time to make sure that the maven help plugin is installed
-GUACAMOLE_VERSION := $(shell cd $(GUACAMOLE_DIR) && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B -q && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B | grep -e "^\d" | head -n1)
+GUACAMOLE_VERSION := $(shell cd $(GUACAMOLE_DIR) && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B -q && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version -B | grep -e "^[0-9]" | head -n1)
 BUILD_GUACAMOLE := $(GUACAMOLE_DIR)/target/guacamole-$(GUACAMOLE_VERSION).war
 INSTALL_GUACAMOLE := $(INSTALL_DIR)/guacamole-$(GUACAMOLE_VERSION).war
 #TODO: install target with version number?
