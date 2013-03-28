@@ -9,7 +9,7 @@
 	url = git://github.com/cmujedi/libguac-client-vnc.git
 [submodule "libguac-client-rdp"]
 	path = libguac-client-rdp
-	url = git://github.com/cmujedi/libguac-client-rdp.git
+	url = git://github.com/frankschlegel/libguac-client-rdp.git
 [submodule "guacamole"]
 	path = guacamole
 	url = git://github.com/cmujedi/guacamole.git
